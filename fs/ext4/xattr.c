@@ -598,12 +598,13 @@ static size_t ext4_xattr_free_space(struct ext4_xattr_entry *last,
 				    size_t *min_offs, void *base, int *total)
 {
 	for (; !IS_LAST_ENTRY(last); last = EXT4_XATTR_NEXT(last)) {
-		*total += EXT4_XATTR_LEN(last->e_name_len);
 		if (!last->e_value_block && last->e_value_size) {
 			size_t offs = le16_to_cpu(last->e_value_offs);
 			if (offs < *min_offs)
 				*min_offs = offs;
 		}
+		if (total)
+			*total += EXT4_XATTR_LEN(last->e_name_len);
 	}
 	return (*min_offs - ((void *)last - base) - sizeof(__u32));
 }
@@ -1311,8 +1312,7 @@ retry:
 		first = BFIRST(bh);
 		end = bh->b_data + bh->b_size;
 		min_offs = end - base;
-		free = ext4_xattr_free_space(first, &min_offs, base,
-					     &total_blk);
+		free = ext4_xattr_free_space(first, &min_offs, base, NULL);
 		if (free < new_extra_isize) {
 			if (!tried_min_extra_isize && s_min_extra_isize) {
 				tried_min_extra_isize++;
