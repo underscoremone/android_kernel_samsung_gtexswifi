@@ -7,11 +7,11 @@
 
 set -e -o pipefail
 
-export CROSS_COMPILE=../PLATFORM/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
+export CROSS_COMPILE=../../arm-eabi-4.9/bin/arm-eabi-
 export ARCH=arm
 
 PLATFORM=sc8830
-DEFCONFIG=gtexswifi-dt_defconfig
+DEFCONFIG=lineageos_gtexswifi_defconfig
 
 KERNEL_PATH=$(pwd)
 MODULE_PATH=${KERNEL_PATH}/modules
