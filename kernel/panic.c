@@ -22,7 +22,7 @@
 #include <linux/sysrq.h>
 #include <linux/init.h>
 #include <linux/nmi.h>
-
+#include <asm/cacheflush.h>
 #include <asm/sec/sec_log.h>
 
 #define PANIC_TIMER_STEP 100
@@ -92,6 +92,7 @@ void panic(const char *fmt, ...)
 	 * after the panic_lock is acquired) from invoking panic again.
 	 */
 	local_irq_disable();
+	flush_cache_all();
 
 	/*
 	 * It's possible to come here directly from a panic-assertion and

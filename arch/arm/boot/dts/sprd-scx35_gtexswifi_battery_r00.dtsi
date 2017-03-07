@@ -32,7 +32,8 @@
 		cnom_temp_tab = <1025 3950	/*value = 1000 + temp*/
 			1010 3850
 			1000 3800>;
-		rint_temp_tab = <1025 250
+		rint_temp_tab = <1040 150
+		        1025 250
 			1010 430
 			1000 500>;
 		ocv_table = <4287 100

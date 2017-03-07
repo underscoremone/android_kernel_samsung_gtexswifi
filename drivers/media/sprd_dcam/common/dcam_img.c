@@ -2957,8 +2957,14 @@ static long sprd_img_k_ioctl(struct file *file, unsigned int cmd, unsigned long 
 			mutex_unlock(&dev->dcam_mutex);
 			goto exit;
 		}
-		path = &dev->dcam_cxt.dcam_path[parm.channel_id];
-		path->shrink = parm.shrink;
+		if(DCAM_PATH0 <= parm.channel_id && parm.channel_id < DCAM_PATH_NUM) {
+			path = &dev->dcam_cxt.dcam_path[parm.channel_id];
+			path->shrink = parm.shrink;
+		} else {
+			printk("sprd_img_k_ioctl: Wrong channel ID, %d  \n", parm.channel_id);
+			mutex_unlock(&dev->dcam_mutex);
+			goto exit;
+		}
 		mutex_unlock(&dev->dcam_mutex);
 		DCAM_TRACE("SPRD_IMG: channel %d, shrink=%d \n", parm.channel_id, path->shrink);
 		break;

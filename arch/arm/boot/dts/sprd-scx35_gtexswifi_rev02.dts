@@ -265,6 +265,13 @@ i2c_gpio8: i2c_gpio@3 {
 		gen_panel: gen-panel{};
 	};
 
+	wdt@40290000 {
+		compatible = "sprd,sprd-wdt";
+		reg = <0x40290000 0x1000>,
+			<0x40320000 0x1000>;
+		interrupts = <0 124 0x0>;
+	};
+
 	sprd-marlin {
 		compatible = "sprd,marlin";
 		gpios = <&d_gpio_gpio 148 0 /*marlin gpio0 */

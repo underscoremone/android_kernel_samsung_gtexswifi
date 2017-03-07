@@ -47,9 +47,6 @@
 #include <asm/fiq_glue.h>
 #include <asm/fiq.h>
 #endif
-
-#include <asm/sec/sec_debug.h>
-
 #define KERNEL_ONLY_CHIP_DOG 0
 #define KERNEL_WATCHDOG_FEEDER 1
 
@@ -82,6 +79,7 @@ static irqreturn_t ca7_wdg_isr(int irq, void *dev_id)
 #else
 static void ca7_wdg_fiq(struct fiq_glue_handler *h, void *regs, void *svc_sp)
 {
+#if 0
 	flush_cache_all();
 	outer_disable(); /* l2x0_disable */
 	oops_in_progress = 1;
@@ -89,6 +87,10 @@ static void ca7_wdg_fiq(struct fiq_glue_handler *h, void *regs, void *svc_sp)
 	arch_trigger_all_cpu_backtrace();
 	panic("Hardware Watchdog interrupt barks on <cpu%d>\n", smp_processor_id());
 	__raw_writel(WDG_INT_CLEAR_BIT, CA7_WDG_INT_CLR);
+#else
+	__raw_writel(WDG_INT_CLEAR_BIT, CA7_WDG_INT_CLR);
+	panic("Hardware Watchdog interrupt barks on <cpu%d>\n", smp_processor_id());
+#endif
 }
 static struct fiq_glue_handler ca7_wdg_fiq_glue_handler = {
 	.fiq = ca7_wdg_fiq,
@@ -202,10 +204,6 @@ static void wdt_start(void)
 
 static int __init sci_wdt_kfeeder_init(void)
 {
-#ifdef CONFIG_SEC_DEBUG
-	if(sec_debug_level.en.kernel_fault)
-		return -1;
-#endif
 
 #if 0
 	feed_task = kthread_create(watchdog_feeder, NULL, "watchdog_feeder");
@@ -227,10 +225,15 @@ static int __init sci_wdt_kfeeder_init(void)
 		wake_up_process(feed_task);
 	}
 
-	pr_info("SC8830 Watchdog: chip margin %d sec\n", chip_margin);
-	pr_info("SC8830 Watchdog: ap margin %d sec\n", ap_margin);
-	pr_info("SC8830 Watchdog: ca7 margin %d sec\n", ca7_margin);
-	pr_info("SC8830 Watchdog: ca7 irq margin %d sec\n", ca7_irq_margin);
+	if(!sec_debug_level.en.kernel_fault) {
+		pr_info("SC8830 Watchdog: chip margin %d sec\n", chip_margin);
+		pr_info("SC8830 Watchdog: ap margin %d sec\n", ap_margin);
+		pr_info("SC8830 Watchdog: ca7 margin %d sec\n", ca7_margin);
+		pr_info("SC8830 Watchdog: ca7 irq margin %d sec\n", ca7_irq_margin);
+	} else {
+		pr_info("SC8830 Watchdog: ca7 margin %d sec\n", ca7_margin);
+		pr_info("SC8830 Watchdog: ca7 irq mode enabled :  ca7 irq margin %d sec\n", ca7_irq_margin);
+	}
 
 	return 0;
 }
@@ -465,11 +468,6 @@ static struct platform_driver sprd_wdt_driver = {
 static int __init sci_wdt_init(void)
 {
 	int ret = 0;
-
-#ifdef CONFIG_SEC_DEBUG
-	if(sec_debug_level.en.kernel_fault)
-		return -1;
-#endif
 
 	if (wdt_init())
 		goto wdt_out;
