@@ -58,6 +58,7 @@ extern int sec_chg_dt_init(struct device_node *np,
 			 sec_battery_platform_data_t *pdata);
 extern int led_state_charger;
 int otg_enable_flag;
+extern bool slate_mode_state;
 
 static enum power_supply_property sec_charger_props[] = {
         POWER_SUPPLY_PROP_STATUS,
@@ -392,6 +393,12 @@ static u8 SM5701_otg_control(struct SM5701_charger_data *charger, int enable)
 {
 	u8 otg_en = 0, mask = 0;
 
+	if (slate_mode_state) {
+		pr_info("%s: [SLATE_MODE] original signal:%d, forced turn off OTG \n",
+				__func__, enable);
+		enable = 0;
+	}
+
 	SM5701_reg_read(charger->SM5701->i2c, SM5701_CNTL, &otg_en);
 	mask = 0x02;
 	otg_enable_flag = enable;
@@ -441,6 +448,12 @@ static void SM5701_otg_over_current_status(struct SM5701_charger_data *charger)
 static u8 SM5701_toggle_charger(struct SM5701_charger_data *charger, int enable)
 {
 	u8 chg_en = 0, mask = 0;
+
+	if (slate_mode_state) {
+		pr_info("%s: [SLATE_MODE] original signal:%d, forced turn off charger \n",
+				__func__, enable);
+		enable = 0;
+	}
 
 	SM5701_reg_read(charger->SM5701->i2c, SM5701_CNTL, &chg_en);
 

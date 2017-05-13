@@ -19,6 +19,7 @@ extern int get_hw_rev();
 extern int lpcharge;
 extern void sec_bat_initial_check(void);
 extern bool sec_bat_check_jig_status(void);
+bool slate_mode_state;
 
 static struct device_attribute sec_battery_attrs[] = {
 	SEC_BATTERY_ATTR(batt_reset_soc),
@@ -3435,16 +3436,22 @@ ssize_t sec_bat_store_attrs(
 	case BATT_SLATE_MODE:
 		if (sscanf(buf, "%d\n", &x) == 1) {
 			union power_supply_propval value;
+			static int prev_cable_type = POWER_SUPPLY_TYPE_USB;
 			if (x == 1) {
+				prev_cable_type = battery->cable_type;
 				value.intval = POWER_SUPPLY_TYPE_BATTERY;
 				battery->slate_mode = true;
 			} else if (x == 0) {
-				value.intval = POWER_SUPPLY_TYPE_USB;
+				if (!battery->slate_mode) {
+					dev_info(battery->dev,
+					"%s: already Not SLATE MODE\n", __func__);
+					return -EINVAL;
+				}
+				value.intval = prev_cable_type;
 				battery->slate_mode = false;
 			} else {
 				dev_info(battery->dev,
-					"%s: SLATE MODE unknown command\n",
-					__func__);
+					"%s: SLATE MODE unknown command\n", __func__);
 				return -EINVAL;
 			}
 			psy_do_property("battery", set,
@@ -3452,17 +3459,16 @@ ssize_t sec_bat_store_attrs(
 			if (battery->slate_mode) {
 				value.intval = 0;
 				psy_do_property(battery->pdata->charger_name, set,
-					POWER_SUPPLY_PROP_CURRENT_NOW,
-					value);
+						POWER_SUPPLY_PROP_CURRENT_NOW,
+						value);
 				if (battery->pdata->always_enable)
 					psy_do_property(battery->pdata->charger_name, set,
-						POWER_SUPPLY_PROP_CHARGING_ENABLED,
-						value);
+							POWER_SUPPLY_PROP_CHARGING_ENABLED,
+							value);
 			}
 			ret = count;
 		}
 		break;
-
 	case BATT_LP_CHARGING:
 		break;
 	case SIOP_ACTIVATED:
@@ -5629,6 +5635,7 @@ static int sec_battery_probe(struct platform_device *pdev)
 	battery->store_mode = false;
 #endif
 	battery->slate_mode = false;
+	slate_mode_state = battery->slate_mode;
 	battery->is_hc_usb = false;
 	battery->ignore_siop = false;
 
