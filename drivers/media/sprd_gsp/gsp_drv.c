@@ -437,7 +437,8 @@ static int GSP_Map(gsp_context_t *gspCtx)
     if(gspCtx->gsp_cfg.layer0_info.src_addr.addr_y == 0
        &&gspCtx->gsp_cfg.layer0_info.mem_info.share_fd) {
         data.fd_buffer = gspCtx->gsp_cfg.layer0_info.mem_info.share_fd;
-        if(sprd_ion_get_gsp_addr(&data)) {
+        data.is_need_iova = false;
+        if(sprd_ion_get_addr(ION_GSP, &data)) {
             printk("%s, L%d, error!\n",__func__,__LINE__);
             return -1;
         }
@@ -452,7 +453,8 @@ static int GSP_Map(gsp_context_t *gspCtx)
     if(gspCtx->gsp_cfg.layer1_info.src_addr.addr_y == 0
        &&gspCtx->gsp_cfg.layer1_info.mem_info.share_fd) {
         data.fd_buffer = gspCtx->gsp_cfg.layer1_info.mem_info.share_fd;
-        if(sprd_ion_get_gsp_addr(&data)) {
+        data.is_need_iova = false;
+        if(sprd_ion_get_addr(ION_GSP, &data)) {
             printk("%s, L%d, error!\n",__func__,__LINE__);
             return -1;
         }
@@ -468,7 +470,8 @@ static int GSP_Map(gsp_context_t *gspCtx)
     if(gspCtx->gsp_cfg.layer_des_info.src_addr.addr_y == 0
        &&gspCtx->gsp_cfg.layer_des_info.mem_info.share_fd) {
         data.fd_buffer = gspCtx->gsp_cfg.layer_des_info.mem_info.share_fd;
-        if(sprd_ion_get_gsp_addr(&data)) {
+        data.is_need_iova = false;
+        if(sprd_ion_get_addr(ION_GSP, &data)) {
             printk("%s, L%d, error!\n",__func__,__LINE__);
             return -1;
         }
@@ -486,14 +489,24 @@ static int GSP_Map(gsp_context_t *gspCtx)
 
 static int GSP_Unmap(gsp_context_t *gspCtx)
 {
-    if(gspCtx->gsp_cfg.layer0_info.mem_info.share_fd)
-        sprd_ion_free_gsp_addr(gspCtx->gsp_cfg.layer0_info.mem_info.share_fd);
+    struct ion_addr_data data;
+    if(gspCtx->gsp_cfg.layer0_info.mem_info.share_fd) {
+        data.fd_buffer = gspCtx->gsp_cfg.layer0_info.mem_info.share_fd;
+        data.is_need_iova = false;
+        sprd_ion_free_addr(ION_GSP, &data);
+    }
 
-    if(gspCtx->gsp_cfg.layer1_info.mem_info.share_fd)
-        sprd_ion_free_gsp_addr(gspCtx->gsp_cfg.layer1_info.mem_info.share_fd);
+    if(gspCtx->gsp_cfg.layer1_info.mem_info.share_fd) {
+        data.fd_buffer = gspCtx->gsp_cfg.layer1_info.mem_info.share_fd;
+        data.is_need_iova = false;
+        sprd_ion_free_addr(ION_GSP, &data);
+    }
 
-    if(gspCtx->gsp_cfg.layer_des_info.mem_info.share_fd)
-        sprd_ion_free_gsp_addr(gspCtx->gsp_cfg.layer_des_info.mem_info.share_fd);
+    if(gspCtx->gsp_cfg.layer_des_info.mem_info.share_fd) {
+        data.fd_buffer = gspCtx->gsp_cfg.layer_des_info.mem_info.share_fd;
+        data.is_need_iova = false;
+        sprd_ion_free_addr(ION_GSP, &data);
+    }
 
     return 0;
 }
@@ -649,9 +662,6 @@ static GSP_CAPABILITY_T* GSP_Config_Capability(void)
 			s_gsp_capability.buf_type_support=GSP_ADDR_TYPE_IOVIRTUAL;
 		#else
 			s_gsp_capability.buf_type_support=GSP_Get_Addr_Type();
-		#endif
-		#ifdef CONFIG_GSP_THREE_OVERLAY
-			s_gsp_capability.max_layer_cnt = 3;
 		#endif
         s_gsp_capability.yuv_xywh_even = 1;
         s_gsp_capability.crop_min.w=s_gsp_capability.crop_min.h=4;

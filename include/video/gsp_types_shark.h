@@ -141,7 +141,7 @@ extern   "C"
 
     typedef enum _GSP_ERR_CODE_TAG_
     {
-    	/*GSP HW defined err code, start*/
+        /*GSP HW defined err code, start*/
         GSP_NO_ERR = 0,
         GSP_DES_SIZE_ERR = 1,
         GSP_SCL_OUT_RNG_ERR = 2,
@@ -165,7 +165,7 @@ extern   "C"
         GSP_ALL_MODULE_DISABLE_ERR = 20,
         /*GSP HW defined err code, end*/
 
-		/*GSP kernel driver defined err code, start*/
+        /*GSP kernel driver defined err code, start*/
         GSP_KERNEL_FULL = 0x81,//kernel driver only supports GSP_MAX_USER clients
         GSP_KERNEL_OPEN_INTR = 0x82,//wait open semaphore, interrupt by signal
         GSP_KERNEL_CFG_INTR = 0x83,//wait hw semaphore, interrupt by signal
@@ -283,7 +283,6 @@ extern   "C"
 	}
 	GSP_MEM_INFO;
 
-
     typedef struct _GSP_LAYER0_CONFIG_INFO_TAG_
     {
         GSP_DATA_ADDR_T             src_addr;
@@ -295,7 +294,7 @@ extern   "C"
         GSP_ENDIAN_INFO_PARAM_T     endian_mode;
         GSP_LAYER_SRC_DATA_FMT_E        img_format;
         GSP_ROT_ANGLE_E             rot_angle;
-		GSP_MEM_INFO                mem_info;
+        GSP_MEM_INFO                mem_info;
         uint8_t                         row_tap_mode;
         uint8_t                         col_tap_mode;
         uint8_t                         alpha;
@@ -319,7 +318,7 @@ extern   "C"
         GSP_ENDIAN_INFO_PARAM_T     endian_mode;
         GSP_LAYER_SRC_DATA_FMT_E        img_format;
         GSP_ROT_ANGLE_E             rot_angle;
-		GSP_MEM_INFO                mem_info;
+        GSP_MEM_INFO                mem_info;
         uint8_t                         row_tap_mode;
         uint8_t                         col_tap_mode;
         uint8_t                         alpha;
@@ -337,7 +336,7 @@ extern   "C"
         uint32_t                            pitch;
         GSP_ENDIAN_INFO_PARAM_T     endian_mode;
         GSP_LAYER_DST_DATA_FMT_E        img_format;
-		GSP_MEM_INFO                mem_info;
+        GSP_MEM_INFO                mem_info;
         uint8_t                        compress_r8_en;
         //uint8_t                      layer_en;
     }
@@ -346,11 +345,11 @@ extern   "C"
     typedef struct _GSP_MISC_CONFIG_INFO_TAG_
     {
         uint8_t                        dithering_en;
-		uint8_t                        gsp_gap;//gsp ddr gap(0~255)
-		uint8_t                        gsp_clock;//gsp clock(0:96M 1:153.6M 2:192M 3:256M)
-		uint8_t                        ahb_clock;//ahb clock(0:26M 1:76M 2:128M 3:192M)
-		uint8_t                        split_pages;//0:not split  1: split
-		uint8_t                        y2r_opt;// 0 : full YUV;  1:reduce YUV
+        uint8_t                        gsp_gap;//gsp ddr gap(0~255)
+        uint8_t                        gsp_clock;//gsp clock(0:96M 1:153.6M 2:192M 3:256M)
+        uint8_t                        ahb_clock;//ahb clock(0:26M 1:76M 2:128M 3:192M)
+        uint8_t                        split_pages;//0:not split  1: split
+        uint8_t                        y2r_opt;// 0 : full YUV;  1:reduce YUV
     }
     GSP_MISC_CONFIG_INFO_T;
 

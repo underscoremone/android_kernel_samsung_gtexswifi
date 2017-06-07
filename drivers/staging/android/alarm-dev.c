@@ -23,7 +23,7 @@
 #include <linux/spinlock.h>
 #include <linux/uaccess.h>
 #include <linux/alarmtimer.h>
-#include "android_alarm.h"
+#include "uapi/android_alarm.h"
 
 #define ANDROID_ALARM_PRINT_INFO (1U << 0)
 #define ANDROID_ALARM_PRINT_IO (1U << 1)
@@ -380,7 +380,21 @@ static int alarm_release(struct inode *inode, struct file *file)
 
 	spin_lock_irqsave(&alarm_slock, flags);
 	if (file->private_data) {
-		for (i = 0; i < ANDROID_ALARM_TYPE_COUNT; i++) {
+		for (i = 0; i < ANDROID_ALARM_POWER_ON_WAKEUP; i++) {
+			uint32_t alarm_type_mask = 1U << i;
+			if (alarm_enabled & alarm_type_mask) {
+				alarm_dbg(INFO,
+					  "%s: clear alarm, pending %d\n",
+					  __func__,
+					  !!(alarm_pending & alarm_type_mask));
+				alarm_enabled &= ~alarm_type_mask;
+			}
+			spin_unlock_irqrestore(&alarm_slock, flags);
+			devalarm_cancel(&alarms[i]);
+			spin_lock_irqsave(&alarm_slock, flags);
+		}
+		for (i = ANDROID_ALARM_SYSTEMTIME; i <
+			ANDROID_ALARM_TYPE_COUNT; i++) {
 			uint32_t alarm_type_mask = 1U << i;
 			if (alarm_enabled & alarm_type_mask) {
 				alarm_dbg(INFO,
