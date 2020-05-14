@@ -55,6 +55,7 @@
 #include <net/ip6_fib.h>
 #include <net/ip6_route.h>
 #include <net/ip6_tunnel.h>
+#include <net/gre.h>
 
 
 static bool log_ecn_error = true;
@@ -365,7 +366,7 @@ static void ip6gre_tunnel_uninit(struct net_device *dev)
 
 
 static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
-		u8 type, u8 code, int offset, __be32 info)
+		       u8 type, u8 code, int offset, __be32 info)
 {
 	const struct gre_base_hdr *greh;
     const struct ipv6hdr *ipv6h;
@@ -376,16 +377,16 @@ static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	__be32 key;
 
 	if (!pskb_may_pull(skb, offset + grehlen))
-     return;
-   greh = (const struct gre_base_hdr *)(skb->data + offset);
-   flags = greh->flags;
-   if (flags & (GRE_VERSION | GRE_ROUTING))
-      return;
-   if (flags & GRE_CSUM)
-      grehlen += 4;
-   if (flags & GRE_KEY) {
-      key_off = grehlen + offset;
-      grehlen += 4;
+		return;
+	greh = (const struct gre_base_hdr *)(skb->data + offset);
+	flags = greh->flags;
+	if (flags & (GRE_VERSION | GRE_ROUTING))
+		return;
+	if (flags & GRE_CSUM)
+		grehlen += 4;
+	if (flags & GRE_KEY) {
+		key_off = grehlen + offset;
+		grehlen += 4;
 	}
 
 	if (!pskb_may_pull(skb, offset + grehlen))
@@ -395,7 +396,7 @@ static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 	key = key_off ? *(__be32 *)(skb->data + key_off) : 0;
 
 	t = ip6gre_tunnel_lookup(skb->dev, &ipv6h->daddr, &ipv6h->saddr,
-		 key, greh->protocol);	
+				 key, greh->protocol);
 	if (t == NULL)
 		return;
 
