@@ -76,4 +76,3 @@ obj-$(CONFIG_SPRD_TKS_DRIVER)   += sprd_tks.o
 obj-$(CONFIG_SDIODEV)     += sdiodev/
 obj-$(CONFIG_MDBG)  += mdbg/
 obj-y	+= sprd_dwnload/
-obj-y += sprd2331/ 

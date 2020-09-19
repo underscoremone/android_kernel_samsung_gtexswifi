@@ -619,6 +619,4 @@ config SPRD_SRT_KO
 	depends on SPRD_SRT
 	default m
 
-source "drivers/misc/sprd2331/Kconfig"
-
 endmenu
